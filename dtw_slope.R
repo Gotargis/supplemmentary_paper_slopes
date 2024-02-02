@@ -4,11 +4,12 @@ library(dtwclust)
 
 #### Folder with the data
 #Defines the path to the folder containing the data files 
-pathtofiles = "C:/Users/Admin/Desktop/data/"
+pathtofiles = "C:/Users/Admin/Desktop/data/" #input data: deceleration of each participant in each trial. Files format '.txt'
 
 #### Import data  ####
+#files were named as 'ALBdownhill1_dec.txt': ALB - participants' initials, downhill - slope condition, 1 - trial;
 list = list.files(path = pathtofiles, full.names = F) #lists the files in the specified folder
-list = data.frame(str_split(list, "_")) #splits the filenames based on underscores
+list = data.frame(str_split(list, "_")) #splits the filenames based on underscores 
 list = data.frame(t(list)) #constructs a data frame from the split parts
 data = NULL
 #loop through the list of files, reads each CSV file, processes the data, and appends it to 'data'
@@ -28,7 +29,6 @@ for (i in c(1:nrow(list))){
   rm(filedata, file)
 }
 
-
 #### Clustering ####
 # Linear interpolation to have TS with same length
 data_clus = data.frame(dist = seq(-4,0,by = .2)) #linear interpolation (every .05s) to ensure that all time series have the same length
@@ -46,11 +46,12 @@ data_clus = data_clus %>% select(-dist)
 # Clustering
 set.seed(101)
 clust.pam <- tsclust(t(data_clus), type="partitional", #'tsclust' function performs time series clustering
-                     k=2L:3L, 
+                     k=2L:3L, #modify the '3' by the number of clusters you want +1. Eg., if you want to test the data in 4 clusters, you enter the number 5. You should test several numbers of cluster to find the number that is more appropriate to your study. 
                      distance="dtw", 
                      centroid="pam")
 # Statistics to evaluate the best number of cluster
 test = data.frame(t(sapply(clust.pam, FUN = cvi))) #calculates cluster validity indices (cvi) for each clustering and stores them in 'test'
+#it will return you the best number of cluster. 
 
 
 # Viz of the results
